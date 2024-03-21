@@ -1,0 +1,679 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <chrono>
+#include <algorithm>
+#include <sstream>
+#include <fstream>
+#include <stdexcept>
+using namespace std;
+
+
+class Resource{
+private:
+    string resource_name; // name of resource
+    string resource_type; // man, service, server etc
+    string um; // measurement unity, manhours , energy(watts), session duration
+    double quantity; // number of hours
+    double hourly_cost; // cost per hour
+public:
+    Resource(const string& resource_name_, const string& resource_type_, const string& um_, double quantity_, double hourly_cost_):
+        resource_name(resource_name_), resource_type(resource_type_), um(um_), quantity(quantity_),hourly_cost(hourly_cost_){}
+
+    Resource() : resource_name(""), resource_type(""), um(""), quantity(0.0), hourly_cost(0.0) {}
+    // overload << operator for objects of type Resource
+    friend ostream& operator<<(ostream& os, const Resource& resource)
+    {
+        os << "Resource name is: "<< resource.get_resource_name()<<endl;
+        os << "Resource type is: "<<resource.get_resource_type()<<endl;
+        os << "Resource unity of measurement is: "<<resource.get_um()<<endl;
+        os << "Resource quantity is: "<<resource.get_quantity()<<endl;
+        os << "Resource hourly cost is: "<<resource.get_resource_hourly_cost()<<endl;
+    }
+
+    // overload >> operator for objects of type Resource
+    friend istream& operator>>(istream& is, Resource& resource)
+    {
+    cout << "Enter resource name: ";
+    getline(is, resource.resource_name);
+    cout << "Enter resource type: ";
+    getline(is, resource.resource_type);
+    cout << "Enter resource unity of measurement: ";
+    getline(is, resource.um);
+    cout << "Enter resource quantity: ";
+    is >> resource.quantity;
+    cout << "Enter resource hourly cost: ";
+    is >> resource.hourly_cost;
+    return is;
+    }
+
+     // overload == operator for class Resource
+    bool operator==(const Resource& other) const {
+        return (resource_name == other.resource_name &&
+                resource_type == other.resource_type &&
+                um == other.um &&
+                quantity == other.quantity &&
+                hourly_cost == other.hourly_cost);
+    }
+    double get_resource_hourly_cost()
+    const {
+        return hourly_cost;
+    }
+    void set_resource_hourly_cost(double& cost)
+    {
+        hourly_cost = cost;
+    }
+    double get_quantity()
+    const {
+        return quantity;
+    }
+    void set_quantity(double& quantity_)
+    {
+        quantity = quantity_;
+    }
+    string get_resource_name()
+    const {
+        return resource_name;
+    }
+    string get_resource_type()
+    const {
+        return resource_type;
+    }
+    string get_um()
+    const {
+        return um;
+    }
+
+};
+
+class Task{
+private:
+    string task_name;
+    int priority; // scale 1-3 1=low, 2=medium, 3=high
+    string task_status; //in progress, finished, pending,delayed
+    int start_date;
+    int end_date;
+    vector<Resource> resources;
+public:
+    Task(const string& task_name_, int priority_, const string& task_status_, int start_date_, int end_date_, const vector<Resource>& resources_):
+        task_name(task_name_), priority(priority_), task_status(task_status_), start_date(start_date_), end_date(end_date_), resources(resources_){}
+    Task() = default;
+      // methods
+     double calculateTaskCost() const{
+        double total_cost = 0.0;
+        for(const auto& resource: resources)
+        {
+            total_cost +=  resource.get_resource_hourly_cost() * resource.get_quantity();
+        }
+        return total_cost;}
+
+    void add_Resource(const Resource& resource)
+    {
+        resources.push_back(resource);
+    }
+    void changePriority(const int& priority){}
+    void change_start_date_t(int new_start_date_t){start_date = new_start_date_t;}
+    void change_end_date_t(int new_end_date_t){end_date = new_end_date_t;}
+
+
+    // overload operator<< for class Task
+    friend ostream& operator<<(ostream& os, const Task& task)
+    {
+        os << "TASK" << endl;
+        os << "Task name is: "<<task.get_task_name()<<endl;
+        os << "Task priority is: "<<task.get_priority()<<endl;
+        os << "Task status is: "<< task.get_task_status()<<endl;
+        os << "Task start date is: "<<task.get_start_date()<<endl;
+        os << "Task end date is "<< task.get_end_date()<<endl;
+        os << endl;
+        os << "For this task, we use the following resources:" <<endl;
+        os << endl;
+        for(const auto& resource: task.get_resources())
+        {
+            os <<"Resource"<<endl;
+            os << resource <<endl;
+        }
+    }
+
+    friend istream& operator>>(istream& is, Task& task)
+    {
+    string name, status;
+    int priority, start_date, end_date;
+
+
+    cout << "Enter task name: ";
+    getline(is, name);
+    cout << "Enter task priority (1 for low, 2 for medium, 3 for high): ";
+    is >> priority;
+    is.ignore();
+    cout << "Enter task status: ";
+    getline(is, status);
+    cout << "Enter start date: ";
+    is >> start_date;
+    cout << "Enter end date: ";
+    is >> end_date;
+
+
+    int num_resources;
+    cout << "Enter number of resources for this task: ";
+    is >> num_resources;
+    is.ignore();
+
+
+    vector<Resource> resources;
+    for (int i = 0; i < num_resources; ++i) {
+        Resource resource;
+        is >> resource;
+        resources.push_back(resource);
+    }
+
+    task = Task(name, priority, status, start_date, end_date, resources);
+
+    return is;
+    }
+
+
+    // overload == operator for class Task
+   bool operator==(const Task& other) const {
+        return task_name == other.task_name &&
+               priority == other.priority &&
+               task_status == other.task_status &&
+               start_date == other.start_date &&
+               end_date == other.end_date &&
+               resources == other.resources;
+    }
+    string get_task_name()
+    const {
+        return task_name;
+    }
+    string get_task_status()
+    const {
+        return task_status;
+    }
+    void set_task_status(string& status)
+    {
+        task_status = status;
+    }
+    vector<Resource> get_resources()
+    const {
+        return resources;
+    }
+    int get_priority()
+    const {
+        return priority;
+    }
+    int get_start_date()
+    const {
+        return start_date;
+    }
+    int get_end_date()
+    const {
+        return end_date;
+    }
+
+
+};
+
+
+class Project{
+private:
+    string project_name;
+    vector<Resource> project_resources;
+    vector<Task> task_list;
+    int start_date_p;
+    int end_date_p;
+    string project_status;
+public:
+    Project(const string& project_name_, const vector<Resource>& project_resources_, const vector<Task>& task_list_, int start_date_,int end_date_, const string& project_status_):
+        project_name(project_name_), project_resources(project_resources_),task_list(task_list_),start_date_p(start_date_), end_date_p(end_date_), project_status(project_status_) {}
+
+    // copy constructor
+    Project(const Project& other) : project_name(other.project_name), project_resources(other.project_resources), task_list(other.task_list),start_date_p(other.start_date_p),end_date_p(other.end_date_p), project_status(other.project_status){}
+
+
+    //Destructor for project class
+    ~Project(){
+        project_name="";
+        project_resources.clear();
+        project_status="";
+        task_list.clear();
+        start_date_p=0;
+        end_date_p=0;
+    }
+
+    // methods
+    void add_Task(const Task& task){task_list.push_back(task);};
+    void remove_Task(const Task& task) {
+    auto it = find(task_list.begin(), task_list.end(), task);
+    if (it != task_list.end()) {
+        task_list.erase(it);
+    }
+    }
+    void change_start_date_p(int new_start_date){start_date_p = new_start_date;};
+    void change_end_date_p(int new_end_date){end_date_p = new_end_date;};
+
+    double calculateProjectCost()const{
+        double cost = 0.0;
+        for(auto& task: task_list)
+        {
+            cost += task.calculateTaskCost();
+        }
+        return cost;
+    }
+
+
+    // overload operator= for class Project
+    Project& operator=(const Project& other)
+    {
+        if(this != &other)
+        {
+            project_name = other.project_name;
+            project_resources = other.project_resources;
+            task_list = other.task_list;
+            start_date_p = other.start_date_p;
+            end_date_p = other.end_date_p;
+            project_status = other.project_status;
+       }
+       return *this;
+    }
+
+    // overload operator<< for class Project
+    friend ostream& operator<<(ostream& os, const Project& project)
+    {
+        //os << "Resource:" << endl;
+        os << "Project name is: "<< project.project_name<<endl;
+        os << "Start date for the project is: "<<project.get_start_date_p()<<endl;
+        os << "End date for the project is: "<<project.get_end_date_p()<<endl;
+        os << "Project status is: "<<project.get_project_status()<<endl;
+        os << endl;
+        os <<"The project consists of the following tasks:"<<endl;
+        os << endl;
+        for(const auto& task: project.get_task_list())
+        {
+            cout<<task;
+        }
+        /*os << "The resources required are: "<<endl;
+        int i = 1;
+        for(const auto& resource: project.project_resources)
+        {
+            cout<<i<<endl;
+            i++;
+            cout<<resource;
+        }
+        cout<<endl; */
+    }
+
+
+    // overload operator== for Project class
+    bool operator==(const Project& other) const {
+        // Compare each member for equality
+        return (project_name == other.project_name &&
+                project_resources == other.project_resources &&
+                task_list == other.task_list &&
+                start_date_p == other.start_date_p &&
+                end_date_p == other.end_date_p &&
+                project_status == other.project_status);
+    }
+    string get_project_name()
+    const {
+        return project_name;
+    }
+    vector<Task> get_task_list()
+    const {
+        return task_list;
+    }
+    int get_start_date_p()
+    const {
+        return start_date_p;
+    }
+    int get_end_date_p()
+    const {
+        return end_date_p;
+    }
+    string get_project_status()
+    const {
+        return project_status;
+
+    }
+
+};
+
+Project readProjectFromFile(const string& filename) {
+    ifstream file(filename);
+
+    if (!file.is_open()) {
+        throw runtime_error("Unable to open file: " + filename);
+    }
+
+    string name, status;
+    int start_date, end_date;
+    vector<Resource> project_resources;
+    vector<Task> task_list;
+
+    // Read project details
+    if (getline(file, name) && getline(file, status) && file >> start_date >> end_date) {
+        file.ignore(); // Ignore newline character
+    } else {
+        throw runtime_error("Error reading project details from file.");
+    }
+
+    int num_tasks;
+    if (!(file >> num_tasks)) {
+        throw runtime_error("Error reading number of tasks from file.");
+    }
+
+    file.ignore(); // Ignore newline character
+    for (int i = 0; i < num_tasks; ++i) {
+        string task_name, task_status;
+        int priority, start_date, end_date;
+        vector<Resource> resources;
+
+        if (getline(file, task_name) && file >> priority >> task_status >> start_date >> end_date) {
+            file.ignore(); // Ignore newline character
+        } else {
+            throw runtime_error("Error reading task details from file.");
+        }
+
+        // Read resources for the task
+        int num_resources;
+        if (!(file >> num_resources)) {
+        throw runtime_error("Error reading number of resources from file.");
+    }
+
+    file.ignore(); // Ignore newline character
+    for (int i = 0; i < num_resources; ++i) {
+        string resource_name, resource_type, um;
+        double quantity, hourly_cost;
+        if (getline(file, resource_name) && getline(file, resource_type) && getline(file, um)
+            && file >> quantity >> hourly_cost) {
+            file.ignore(); // Ignore newline character
+            resources.emplace_back(resource_name, resource_type, um,quantity,hourly_cost);
+            project_resources.emplace_back(resource_name, resource_type, um, quantity, hourly_cost);
+        } else {
+            throw runtime_error("Error reading resource details from file.");
+        }
+    }
+        task_list.emplace_back(task_name, priority, task_status, start_date, end_date, resources);
+    }
+
+    // Read resources
+    /*int num_resources;
+    if (!(file >> num_resources)) {
+        throw runtime_error("Error reading number of resources from file.");
+    }
+
+    file.ignore(); // Ignore newline character
+    for (int i = 0; i < num_resources; ++i) {
+        string resource_name, resource_type, um;
+        double quantity, hourly_cost;
+        if (getline(file, resource_name) && getline(file, resource_type) && getline(file, um)
+            && file >> quantity >> hourly_cost) {
+            file.ignore(); // Ignore newline character
+            project_resources.emplace_back(resource_name, resource_type, um, quantity, hourly_cost);
+        } else {
+            throw runtime_error("Error reading resource details from file.");
+        }
+    } */
+
+
+    file.close();
+
+    return Project(name, project_resources, task_list, start_date, end_date, status);
+}
+
+
+
+Resource createResource()
+{
+    string name, type, um;
+    double quantity, hourly_cost;
+    cout << "Enter resource name: ";
+    getline(cin, name);
+    cout << "Enter resource type: ";
+    getline(cin, type);
+    cout << "Enter resource measurement unit: ";
+    getline(cin, um);
+    cout << "Enter quantity: ";
+    cin >> quantity;
+    cout << "Enter hourly cost: ";
+    cin >> hourly_cost;
+    cin.ignore();
+
+    return Resource(name, type, um, quantity, hourly_cost);
+}
+
+Task createTask() {
+    string name, status;
+    int priority, start_date, end_date;
+    vector<Resource> resources;
+
+    cout << "Enter task name: ";
+    getline(cin, name);
+    cout << "Enter task priority (1 for low, 2 for medium, 3 for high): ";
+    cin >> priority;
+    cin.ignore(); // Clear input buffer
+    cout << "Enter task status: ";
+    getline(cin, status);
+    cout << "Enter start date: ";
+    cin >> start_date;
+    cout << "Enter end date: ";
+    cin >> end_date;
+
+    int num_resources;
+    cout << "Enter number of resources for this task: ";
+    cin >> num_resources;
+    cin.ignore(); // Clear input buffer
+
+    for (int i = 0; i < num_resources; ++i) {
+        resources.push_back(createResource());
+    }
+
+    return Task(name, priority, status, start_date, end_date, resources);
+}
+
+ Project createProject() {
+    string name, status;
+    int start_date, end_date;
+    vector<Resource> project_resources;
+    vector<Task> task_list;
+
+    cout << "Enter project name: ";
+    getline(cin, name);
+    cout << "Enter project status: ";
+    getline(cin, status);
+    cout << "Enter start date: ";
+    cin >> start_date;
+    cout << "Enter end date: ";
+    cin >> end_date;
+
+    int num_tasks;
+    cout << "Enter number of tasks for this project: ";
+    cin >> num_tasks;
+    cin.ignore();
+
+    for (int i = 0; i < num_tasks; ++i) {
+        task_list.push_back(createTask());
+    }
+
+    return Project(name, project_resources, task_list, start_date, end_date, status);
+}
+
+
+int main() {
+    vector<Project> project_list;
+    int choice;
+    do {
+        cout << "Welcome to Project Management Menu" << endl;
+        cout << "1. Create a new project" << endl;
+        cout << "2. Read and display project from a file" << endl;
+        cout << "3. Display a project" << endl;
+        cout << "4. Display cost of a project" << endl;
+        cout << "5. Display project yield"<< endl;
+        cout << "6. Add/Delete/Change a task"<<endl;
+        cout << "7. Add/Delete/Change resource"<<endl;
+        cout << "8. Change project status"<<endl;
+        cout << "Enter your choice: ";
+        cin >> choice;
+        cin.ignore(); // Clear input buffer
+
+        switch (choice) {
+            case 1: {
+                Project newProject = createProject();
+                project_list.push_back(newProject);
+                cout<<"You have succesfully created a project! Please choose the next option from the menu! "<<endl;
+                cout<<endl;
+                break;
+            }
+            case 2: {
+                cout<<"Please write the name of the file!"<<endl;
+                string filename;
+                getline(cin, filename);
+                Project P = readProjectFromFile(filename);
+                project_list.push_back(P);
+                cout<<endl;
+                cout<<P;
+                break;
+            }
+            case 3:
+                {
+                    bool project_found = false;
+                    string nume_proiect;
+                    cout<<"Please write the name of the project!"<<endl;
+                    getline(cin, nume_proiect);
+                    for(const auto& project: project_list)
+                    {
+                        if(project.get_project_name() == nume_proiect)
+                        {
+                            cout<<project;
+                            project_found = true;
+                        }
+                    }
+                    if(!project_found)
+                    {
+                        cout<<"The project was not found!"<<endl;
+                    }
+                    break;
+                }
+            continue;
+            case 4:{
+                    if(project_list.size() != 0)
+                    {
+                        cout<<"Please write the name of the project you want the cost of!"<<endl;
+                        bool gasit = 0;
+                        string nume;
+                        getline(cin, nume);
+                        for(auto project: project_list)
+                        {
+                            if(project.get_project_name() == nume)
+                            {
+                                gasit = 1;
+                                cout<<"The cost of the project is: "<<project.calculateProjectCost()<<endl;
+                            }
+                        }
+                        if(gasit == 0)
+                        {
+                            cout<<"Please rewrite the name of the project since it was not found!"<<endl;
+                        }
+                    }
+                    else
+                    {
+                        cout<<"There is not any project!"<<endl;
+                    }
+                    break;
+                }
+            case 5:{
+                    cout << "Please write the details about the task you want to add"<<endl;
+                    cout << "Which project does the task belong to? "<<endl;
+                    string nume_proiect;
+                    getline(cin, nume_proiect);
+                    Task task = createTask();
+
+                    bool found_project = false;
+                    for(auto& project : project_list) {
+                        if(project.get_project_name() == nume_proiect) {
+                            project.add_Task(task);
+                            found_project = true;
+                            break;
+                        }
+                    }
+
+                    if(found_project) {
+                        cout << "Task added successfully to project: " << nume_proiect << endl;
+                        cout << "Now the tasks for project " << nume_proiect << " are: " << endl;
+                        for(auto& project : project_list) {
+                            if(project.get_project_name() == nume_proiect) {
+                                for(auto& task : project.get_task_list()) {
+                                    cout << task << endl;
+                                }
+                                break;
+                            }
+                        }
+                    } else {
+                        cout << "Project not found!" << endl;
+                    }
+                    break;
+                }
+
+            case 6: {
+                Task task;
+                cin >> task;
+                string project_name;
+                cout << "Please enter the name of the project to which the task will be added: ";
+                cin.ignore(); // Clear input buffer
+                getline(cin, project_name);
+
+                bool found_project = false;
+                for (auto& project : project_list) {
+                    if (project.get_project_name() == project_name) {
+                        project.add_Task(task);
+                        found_project = true;
+                        cout << "Task added successfully to project: " << project_name << endl;
+                }
+            }
+
+                if (!found_project) {
+                    cout << "Project not found!" << endl;
+                }
+                break;
+            }
+
+            case 7: {
+                cout << "Please write the details about the task you want to remove!" << endl;
+                string nume_proiect;
+                getline(cin, nume_proiect);
+                Task task;
+                for (auto& project : project_list) {
+                    if (project.get_project_name() == nume_proiect) {
+                        cin>>task;
+                        project.remove_Task(task);
+                        cout<<"Task removed succesfully"<<endl;
+                        break;
+                        }
+                }
+                }
+                break;
+
+
+            case 8:{
+                cout<<" 8.Change task status"<<endl;
+                break;
+            }
+            case 9:{
+                cout<<" 9.Change task start date"<<endl;
+                break;
+            }
+            case 10:{
+                cout<<" 10.Change task end date"<<endl;
+                break;
+            }
+            /*
+            case 11: {cout << "Exiting program..." << endl;
+                break;
+            default:
+                cout << "Invalid choice. Please try again." << endl;} */
+
+    }
+
+}while(choice != 11);
+return 0;
+}
