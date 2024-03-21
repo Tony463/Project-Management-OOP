@@ -8,9 +8,9 @@ Aplicatia de Project Management care se regaseste in acest repo prezinta functio
 
 Avem urmatoarele functionalitati:
 - Un meniu simplu in terminal prin care utilizatorul interactioneaza cu functionalitatile aplicatiei
-- Creare si gestionare proiecte
-- Creare si gestionare sarcini
-- Urmarirea progresului
+- Crearea si citirea unui proiect dintr-un fisier
+- Afisarea costului total al unui proiect
+- Gestionarea taskurilor(adaugare/stergere)
 
 ## Referințe
 
