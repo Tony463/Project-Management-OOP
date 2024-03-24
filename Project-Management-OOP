@@ -563,11 +563,11 @@ int main() {
                     for(auto& project : project_list) {
                         if(project.get_project_name() == nume_proiect) {
 
-                            cout << "The ROI for the project is: "  << (project.get_estimated_revenue() / project.calculate_project_cost()) * 100 <<"%"<<endl;
+                            cout << "The ROI for the project is: "  << "\033[1;32m" << (project.get_estimated_revenue() / project.calculate_project_cost()) * 100 <<"%"<<"\033[0m"<<endl;
                             if(project.calculate_daily_balance(project.calculate_duration(),project.calculate_project_cost()) > 0)
-                                cout <<"The daily balance for the project is: " <<"+"<< project.calculate_daily_balance(project.calculate_duration(),project.calculate_project_cost())<<endl;
+                                cout <<"The daily balance for the project is: " << "\033[1;32m"<<"+"<< project.calculate_daily_balance(project.calculate_duration(),project.calculate_project_cost())<<"\033[0m"<<endl;
                             else
-                                cout <<"The daily balance for the project is: " <<"-"<< project.calculate_daily_balance(project.calculate_duration(),project.calculate_project_cost())<<endl;
+                                cout <<"The daily balance for the project is: " <<"\033[1;31m"<<"-"<< project.calculate_daily_balance(project.calculate_duration(),project.calculate_project_cost())<<"\033[0m"<<endl;
                             break;
                         }
                     }
