@@ -309,7 +309,7 @@ public:
     {
         //os << "Resource:" << endl;
         os << "\033[1;32mPROJECT\033[0m"<<endl;
-        os << "\033[1;32mThe project consists of a succession of tasks and each task consists of a succession of required resources!\033[0m"<<endl;
+        os << "\033[1;32mThe project consists of a succession of tasks and each task consists of multiple resources!\033[0m"<<endl;
         os << "Project name is: "<< project.project_name<<endl;
         os << "Start date for the project is: "<<project.get_start_date_p()<<endl;
         os << "End date for the project is: "<<project.get_end_date_p()<<endl;
