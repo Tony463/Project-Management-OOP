@@ -449,7 +449,6 @@ Project readProjectFromFile(const string& filename) {
         if (!(file >> num_resources)) {
         throw runtime_error("Error reading number of resources from file.");
     }
-
     file.ignore();
     for (int i = 0; i < num_resources; ++i) {
         string resource_name, resource_type, um;
@@ -457,14 +456,14 @@ Project readProjectFromFile(const string& filename) {
         if (getline(file, resource_name) && getline(file, resource_type) && getline(file, um) && file >> quantity >> hourly_cost)
         {
             file.ignore();
-            resources.emplace_back(resource_name, resource_type, um,quantity,hourly_cost);
-            project_resources.emplace_back(resource_name, resource_type, um, quantity, hourly_cost);
+            resources.emplace_back(resource_name, resource_type, um,quantity,hourly_cost); //we use emplace_back method to avoid creating unnecessary copies
+            project_resources.emplace_back(resource_name, resource_type, um, quantity, hourly_cost); 
         }
         else {
             throw runtime_error("Error reading resource details from file.");
         }
     }
-        task_list.emplace_back(task_name, priority, task_status, start_date, end_date, resources);//we use emplace_back method to avoid creating unnecessary copies
+        task_list.emplace_back(task_name, priority, task_status, start_date, end_date, resources); 
     }
     file.close();
     return Project(name, project_resources, task_list, start_date, end_date, status, estimated_revenue);
@@ -482,7 +481,7 @@ int main() {
         cout << "3. Display a project" << endl;
         cout << "4. Display cost of a project" << endl;
         cout << "5. Display project ROI and daily balance"<< endl;
-        cout << "6. Add/Delete/Change a task"<<endl;
+        cout << "6. Add/Remove/Change a task"<<endl;
         cout << "7. Change project_status/estimated_revenue/start_date/end_date" << endl;
         cout << "8. Exit"<<endl;
         cout << "Enter your choice: ";
@@ -584,7 +583,6 @@ int main() {
                 cin >> task;
                 string project_name;
                 cout << "Please enter the name of the project to which the task will be added: ";
-                cin.ignore();
                 getline(cin, project_name);
 
                 bool found_project = false;
@@ -603,43 +601,57 @@ int main() {
                 }
                 if(option == "Remove")
                 {
-                    cout << "Please write the details about the task you want to remove!" << endl;
+                    cout << "Please write the name of the project which contains the task you want to remove!" << endl;
                     string nume_proiect;
                     getline(cin, nume_proiect);
                     Task task;
                     for (auto& project : project_list) {
                         if (project.get_project_name() == nume_proiect) {
-                            cin>>task;
-                            project.remove_Task(task);
-                            cout<<"\033[1;32mTask removed succesfully\033[0m"<<endl;
-                            break;
+                            cout << "Please write the name of the task you want to remove!" << endl;
+                            string task_name;
+                            cin >> task_name;
+                            for(auto& task: project.get_task_list())
+                            {
+                                if(task_name == task.get_task_name())
+                                {
+                                    project.remove_Task(task);
+                                    cout<<"\033[1;32mTask removed succesfully\033[0m"<<endl;
+                                    break;
+                                }
+                            }
                         }
                 }
                 break;
                 }
                 if(option == "Change")
                 {
-                    cout << "Please write the details about the task you want to change!" << endl;
+                    cout << "Please write the the name of the project which contains the task you want to change!" << endl;
                     string project_name;
-                    cout << "Enter the name of the project: ";
                     getline(cin, project_name);
 
                     bool found_project = false;
                     for (auto& project : project_list) {
                         if (project.get_project_name() == project_name) {
-                            cout << "Enter the details of the task you want to change:" << endl;
-                            Task old_task;
-                            cin >> old_task;
-                            cout << "Enter the updated details of the task:" << endl;
-                            Task new_task;
-                            cin >> new_task;
-                            if (project.modify_Task(old_task, new_task)) {
-                                cout << "\033[1;32mTask modified successfully in project: \033[0m" << project_name << endl;
-                            } else {
-                                cout << "\033[1;31mTask not found in project: \033[0m" << project_name << endl;
+                            cout << "Enter the name of the task you want to change:" << endl;
+                            string task_name;
+                            getline(cin, task_name);
+                            for(auto& task: project.get_task_list())
+                            {
+                                if(task.get_task_name()==task_name)
+                                {
+                                    cout << "Enter the updated details of the task:" << endl;
+                                    Task new_task;
+                                    cin >> new_task;
+                                    if (project.modify_Task(task, new_task)) {
+                                        cout << "\033[1;32mTask modified successfully in project: \033[0m" << project_name << endl;
+                                    }
+                                    else {
+                                        cout << "\033[1;31mTask not found in project: \033[0m" << project_name << endl;
+                                    }
+                                found_project = true;
+                                break;
+                                }
                             }
-                            found_project = true;
-                            break;
                         }
                     }
 
