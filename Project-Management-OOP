@@ -116,15 +116,6 @@ public:
         return total_cost;
         }
 
-    void add_resource(const Resource& resource)
-    {
-        resources.push_back(resource);
-    }
-    void changePriority(const int& priority){}
-    void change_start_date_t(int new_start_date_t){start_date = new_start_date_t;}
-    void change_end_date_t(int new_end_date_t){end_date = new_end_date_t;}
-
-
     // overload operator<< for class Task
     friend ostream& operator<<(ostream& os, const Task& task)
     {
@@ -250,20 +241,31 @@ public:
     }
 
     // methods
-    void add_Task(const Task& task){task_list.push_back(task);};
+    void add_Task(const Task& task) {
+
+        vector<Task> updated_task_list = get_task_list();
+        updated_task_list.push_back(task);
+        set_task_list(updated_task_list);
+    }
+
+
     void remove_Task(const Task& task) {
-    auto it = find(task_list.begin(), task_list.end(), task);
-    if (it != task_list.end()) {
-        task_list.erase(it);
+
+        vector<Task> updated_task_list = get_task_list();
+        auto it = find(updated_task_list.begin(), updated_task_list.end(), task);
+        if (it != updated_task_list.end()) {
+            updated_task_list.erase(it);
+            set_task_list(updated_task_list);
+        }
     }
-    }
-    bool modify_Task(Task& old_task, Task& new_task)
-    {
-        auto it = find(task_list.begin(), task_list.end(), old_task);
-        if (it != task_list.end())
-        {
-            task_list.erase(it);
-            task_list.push_back(new_task);
+
+
+    bool modify_Task(const Task& old_task, const Task& new_task) {
+        vector<Task> updated_task_list = get_task_list();
+        auto it = find(updated_task_list.begin(), updated_task_list.end(), old_task);
+        if (it != updated_task_list.end()) {
+            *it = new_task;
+            set_task_list(updated_task_list);
             return true;
         }
         return false;
@@ -271,7 +273,7 @@ public:
 
     double calculate_project_cost()const{
         double cost = 0.0;
-        for(auto& task: task_list)
+        for(auto& task: get_task_list())
         {
             cost += task.calculate_task_cost();
         }
@@ -279,11 +281,11 @@ public:
     }
 
     int calculate_duration()const{
-        int duration = end_date_p - start_date_p;
+        int duration = get_end_date_p() - get_start_date_p();
         return duration;
     }
     double calculate_daily_balance(const int& duration, const double& total_cost)const{
-        return estimated_revenue/duration - total_cost/duration;
+        return get_estimated_revenue()/duration - total_cost/duration;
     }
 
     // overload operator= for class Project
@@ -334,9 +336,9 @@ public:
     getline(is, name);
     cout << "Enter project status(in-progress/delayed/completed): ";
     getline(is, status);
-    cout << "Enter start date: ";
+    cout << "Enter start date(int number): ";
     is >> start_date;
-    cout << "Enter end date: ";
+    cout << "Enter end date(int number): ";
     is >> end_date;
     cout << "Enter estimated revenue: ";
     is >> estimated_revenue;
@@ -405,6 +407,9 @@ public:
     void change_end_date(int& end_date)
     {
         end_date_p = end_date;
+    }
+    void set_task_list(const vector<Task>& updated_task_list) {
+        task_list = updated_task_list;
     }
 
 };
