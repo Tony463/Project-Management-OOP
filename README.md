@@ -14,7 +14,7 @@ We have the following functionalities:
 - The ability to manage the tasks which are part of a project (we can add, remove or change tasks dinamically, tracking the progress of the project)
 
 ## References
-https://stackoverflow.com/
-https://www.geeksforgeeks.org/
+- [Stack Overflow](https://stackoverflow.com/)
+- [GeeksforGeeks](https://www.geeksforgeeks.org/)
 
 
