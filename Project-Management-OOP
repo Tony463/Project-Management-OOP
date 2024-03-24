@@ -37,16 +37,19 @@ public:
     // overload operator>> for objects of type Resource
     friend istream& operator>>(istream& is, Resource& resource)
     {
+    string name, type, um;
+    double res_quantity,cost;
     cout << "Enter resource name: ";
-    getline(is, resource.resource_name);
+    getline(is, name);
     cout << "Enter resource type (manpower/tech): ";
-    getline(is, resource.resource_type);
+    getline(is, type);
     cout << "Enter resource unity of measurement(manhour/watts/session duration): ";
-    getline(is, resource.um);
+    getline(is, um);
     cout << "Enter resource quantity (number of hours): ";
-    is >> resource.quantity;
+    is >> res_quantity;
     cout << "Enter resource hourly cost: ";
-    is >> resource.hourly_cost;
+    is >> cost;
+    resource = Resource(name,type,um,res_quantity,cost);
     return is;
     }
 
